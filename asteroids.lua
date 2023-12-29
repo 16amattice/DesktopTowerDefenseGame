@@ -49,12 +49,33 @@ function Asteroids.update(dt)
             asteroid.vertices[j + 1] = asteroid.y + vx * math.sin(rotation) + vy * math.cos(rotation)
         end
         
-        if _G.utils.checkCollision(asteroid.x, asteroid.y, 20, _G.x, _G.y, _G.square_size) then
-            table.remove(_G.asteroids, i)
+        -- Can we make this better?
+        for _, bullet in ipairs(_G.player.bullets) do
+            local bulletEnd = {x = bullet.x + bullet.dx * dt, y = bullet.y + bullet.dy * dt}
+            for i, asteroid in ipairs(_G.asteroids) do
+                for j = 1, #asteroid.vertices, 2 do
+                    local k = j + 2
+                    if k > #asteroid.vertices then k = 1 end
+                    local edgeStart = {x = asteroid.vertices[j], y = asteroid.vertices[j + 1]}
+                    local edgeEnd = {x = asteroid.vertices[k], y = asteroid.vertices[k + 1]}
+                    if Asteroids.lineSegmentsIntersect({x = bullet.x, y = bullet.y}, bulletEnd, edgeStart, edgeEnd) then
+                        table.remove(_G.asteroids, i)
+                        break
+                    end
+                end
+            end
         end
     end
 end
 
+-- TODO: Refactor this into utils?
+function Asteroids.lineSegmentsIntersect(A, B, C, D)
+    local function ccw(A, B, C)
+        return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
+    end
+
+    return ccw(A, C, D) ~= ccw(B, C, D) and ccw(A, B, C) ~= ccw(A, B, D)
+end
 
 function Asteroids.draw()
     for _, asteroid in ipairs(_G.asteroids) do
