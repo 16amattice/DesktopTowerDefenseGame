@@ -7,7 +7,9 @@ function Player.initialize()
         size = 20,
         direction = math.pi / 2,
         bullets = {},
-        attackTimer = 0
+        attackTimer = 0,
+        -- TODO: Sound Manager? Probably need a better sound than this.
+        fireSound = love.audio.newSource("audio/fire.ogg", "static")
     }
 end
 
@@ -61,6 +63,8 @@ function Player.fireBullet()
 
 
         table.insert(_G.player.bullets, {x = bulletX, y = bulletY, dx = bulletDx, dy = bulletDy})
+        _G.player.fireSound:play()
+
     end
 end
 
