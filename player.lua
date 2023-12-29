@@ -4,7 +4,8 @@ function Player.initialize()
     _G.player = {
         x = _G.window_width / 2,
         y = _G.window_height / 2,
-        size = 50,
+        size = 20,
+        direction = math.pi / 2,
         bullets = {},
         attackTimer = 0
     }
@@ -21,7 +22,7 @@ function Player.update(dt)
         local bullet = player.bullets[i]
         bullet.x = bullet.x + bullet.dx * dt
         bullet.y = bullet.y + bullet.dy * dt
-
+        -- TODO: We need to make sure we kill asteroids behind others if first bullet kills enemy.
         for j, asteroid in ipairs(_G.asteroids) do
             if _G.utils.checkCollision(bullet.x, bullet.y, 5, asteroid.x, asteroid.y, 20) then
                 table.remove(_G.asteroids, j)
@@ -35,7 +36,7 @@ end
 function Player.fireBullet()
     local closestAsteroid, minDist = nil, math.huge
     for _, asteroid in ipairs(_G.asteroids) do
-        local dist = math.sqrt((asteroid.x - player.x)^2 + (asteroid.y - player.y)^2)
+        local dist = math.sqrt((asteroid.x - _G.player.x)^2 + (asteroid.y - _G.player.y)^2)
         if dist < minDist then
             closestAsteroid = asteroid
             minDist = dist
@@ -43,18 +44,40 @@ function Player.fireBullet()
     end
 
     if closestAsteroid then
-        local dx, dy = closestAsteroid.x - player.x, closestAsteroid.y - player.y
-        local length = math.sqrt(dx^2 + dy^2)
-        dx, dy = dx / length * _G.devSettings.bulletSpeed.value, dy / length * _G.devSettings.bulletSpeed.value
+        local dx = closestAsteroid.x - _G.player.x
+        local dy = closestAsteroid.y - _G.player.y
 
-        table.insert(player.bullets, {x = player.x, y = player.y, dx = dx, dy = dy})
+        -- Update the direction of the player to face the closest asteroid
+        -- TODO: Why does this work with math.atan2 but not math.atan?
+        local targetAngle = math.atan2(dy, dx)
+        _G.player.direction = targetAngle
+
+        local bulletX = _G.player.x + _G.player.size * math.cos(targetAngle)
+        local bulletY = _G.player.y + _G.player.size * math.sin(targetAngle)
+
+
+        local bulletDx = math.cos(targetAngle) * _G.devSettings.bulletSpeed.value
+        local bulletDy = math.sin(targetAngle) * _G.devSettings.bulletSpeed.value
+
+
+        table.insert(_G.player.bullets, {x = bulletX, y = bulletY, dx = bulletDx, dy = bulletDy})
     end
 end
 
 function Player.draw()
-    love.graphics.rectangle("line", player.x - player.size / 2, player.y - player.size / 2, player.size, player.size)
+    local shipSize = _G.player.size
+    local angle = _G.player.direction
 
-    for _, bullet in ipairs(player.bullets) do
+    local vertices = {
+        _G.player.x + shipSize * math.cos(angle), _G.player.y + shipSize * math.sin(angle),
+        _G.player.x + shipSize * math.cos(angle - math.pi * 2 / 3), _G.player.y + shipSize * math.sin(angle - math.pi * 2 / 3),
+        _G.player.x + shipSize / 3 * math.cos(angle + math.pi), _G.player.y + shipSize / 3 * math.sin(angle + math.pi),
+        _G.player.x + shipSize * math.cos(angle + math.pi * 2 / 3), _G.player.y + shipSize * math.sin(angle + math.pi * 2 / 3)
+    }
+
+    love.graphics.polygon("line", vertices)
+
+    for _, bullet in ipairs(_G.player.bullets) do
         love.graphics.circle("fill", bullet.x, bullet.y, 5)
     end
 end

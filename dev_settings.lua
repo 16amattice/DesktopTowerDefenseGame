@@ -5,7 +5,7 @@ _G.devSettings = {
     spawnRate = { value = 2, edit = false },
     minDistance = { value = 100, edit = false },
     enemySpeed = { value = 100, edit = false },
-    attackSpeed = { value = 1, edit = false},
+    attackSpeed = { value = 3, edit = false},
     bulletSpeed = { value = 100, edit = false}
 }
 _G.selectedSetting = 1
