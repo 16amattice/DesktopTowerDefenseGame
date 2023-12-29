@@ -4,13 +4,15 @@ local DevSettings = {}
 _G.devSettings = {
     spawnRate = { value = 2, edit = false },
     minDistance = { value = 100, edit = false },
-    enemySpeed = { value = 100, edit = false }
+    enemySpeed = { value = 100, edit = false },
+    attackSpeed = { value = 1, edit = false},
+    bulletSpeed = { value = 100, edit = false}
 }
 _G.selectedSetting = 1
 _G.inputBuffer = ""
 
 function DevSettings.handleInput(key)
-    local settingKeys = {"spawnRate", "minDistance", "enemySpeed"}
+    local settingKeys = {"spawnRate", "minDistance", "enemySpeed", "attackSpeed", "bulletSpeed"}
 
     if key == "tab" then
         local currentIndex = _G.utils.indexOf(settingKeys, _G.selectedSetting)
@@ -31,23 +33,23 @@ function DevSettings.handleInput(key)
 end
 
 function DevSettings.draw()
-    love.graphics.setColor(0, 0, 0, 0.7) -- Semi-transparent background
+    love.graphics.setColor(0, 0, 0, 0.7)
     love.graphics.rectangle("fill", 10, 10, 200, 120)
 
-    local settingOrder = {"spawnRate", "minDistance", "enemySpeed"}
+    local settingOrder = {"spawnRate", "minDistance", "enemySpeed" , "attackSpeed", "bulletSpeed"}
     local y = 15
     for _, key in ipairs(settingOrder) do
         local setting = devSettings[key]
         if selectedSetting == key then
-            love.graphics.setColor(1, 1, 0) -- Highlight color for selected setting
+            love.graphics.setColor(1, 1, 0)
             love.graphics.print(key .. ": " .. setting.value .. " (" .. inputBuffer .. ")", 15, y)
         else
-            love.graphics.setColor(1, 1, 1) -- White color for unselected settings
+            love.graphics.setColor(1, 1, 1)
             love.graphics.print(key .. ": " .. setting.value, 15, y)
         end
         y = y + 20
     end
-    love.graphics.setColor(1, 1, 1) -- Reset color to white for subsequent drawings
+    love.graphics.setColor(1, 1, 1)
 end
 
 return DevSettings

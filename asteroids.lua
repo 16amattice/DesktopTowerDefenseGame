@@ -11,21 +11,17 @@ function Asteroids.spawn()
 end
 
 function Asteroids.update(dt)
-    -- Update asteroid positions
     for i = #_G.asteroids, 1, -1 do
         local asteroid = _G.asteroids[i]
-        -- Calculate direction towards the square
         local dirX = _G.x + _G.square_size / 2 - asteroid.x
         local dirY = _G.y + _G.square_size / 2 - asteroid.y
         local length = math.sqrt(dirX^2 + dirY^2)
         dirX = dirX / length
         dirY = dirY / length
 
-        -- Move asteroid
         asteroid.x = asteroid.x + dirX * asteroid.speed * dt
         asteroid.y = asteroid.y + dirY * asteroid.speed * dt
 
-        -- Check for collision with the square
         if _G.utils.checkCollision(asteroid.x, asteroid.y, 20, _G.x, _G.y, _G.square_size) then
             table.remove(_G.asteroids, i)
         end
