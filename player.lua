@@ -82,7 +82,7 @@ function Player.draw()
     love.graphics.polygon("line", vertices)
 
     for _, bullet in ipairs(_G.player.bullets) do
-        love.graphics.circle("fill", bullet.x, bullet.y, 5)
+        love.graphics.circle("fill", bullet.x, bullet.y, 2)
     end
 end
 
