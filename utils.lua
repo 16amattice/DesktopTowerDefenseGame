@@ -1,10 +1,5 @@
 local Utils = {}
 
-function Utils.checkCollision(ax, ay, ar, bx, by, bs)
-    local distance = math.sqrt((bx + bs / 2 - ax)^2 + (by + bs / 2 - ay)^2)
-    return distance < ar + bs / 2
-end
-
 function Utils.isNumpadKey(key)
     return key:find("^kp%d") ~= nil or key:find("^kpnumlock") ~= nil or key:find("^kp[+\\-*/.]") ~= nil
 end
