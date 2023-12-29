@@ -9,9 +9,26 @@ function Player.initialize()
         bullets = {},
         attackTimer = 0,
         -- TODO: Sound Manager? Probably need a better sound than this.
-        fireSound = love.audio.newSource("audio/fire.ogg", "static")
+        fireSound = love.audio.newSource("audio/fire.ogg", "static"),
+        vertices = {}
     }
+
+    local shipSize = _G.player.size
+    local angle = _G.player.direction
+    _G.player.vertices = {
+        _G.player.x + shipSize * math.cos(angle),
+        _G.player.y + shipSize * math.sin(angle),
+        _G.player.x + shipSize * math.cos(angle - math.pi * 2 / 3),
+        _G.player.y + shipSize * math.sin(angle - math.pi * 2 / 3),
+        _G.player.x + shipSize / 3 * math.cos(angle + math.pi),
+        _G.player.y + shipSize / 3 * math.sin(angle + math.pi),
+        _G.player.x + shipSize * math.cos(angle + math.pi * 2 / 3),
+        _G.player.y + shipSize * math.sin(angle + math.pi * 2 / 3)
+    }
+
 end
+
+
 
 function Player.update(dt)
     local bulletsToRemove = {}
@@ -79,8 +96,9 @@ function Player.fireBullet()
 
 
         table.insert(_G.player.bullets, {x = bulletX, y = bulletY, dx = bulletDx, dy = bulletDy})
-        _G.player.fireSound:play()
-
+        if _G.devSettings.Sounds.value then
+            _G.player.fireSound:play()
+        end
     end
 end
 

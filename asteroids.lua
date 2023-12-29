@@ -43,13 +43,38 @@ function Asteroids.update(dt)
         asteroid.y = asteroid.y + dy
 
         for j = 1, #asteroid.vertices, 2 do
-            local vx = asteroid.vertices[j] - asteroid.x + dx
-            local vy = asteroid.vertices[j + 1] - asteroid.y + dy
-            asteroid.vertices[j] = asteroid.x + vx * math.cos(rotation) - vy * math.sin(rotation)
-            asteroid.vertices[j + 1] = asteroid.y + vx * math.sin(rotation) + vy * math.cos(rotation)
+            local vx = asteroid.vertices[j] - asteroid.x
+            local vy = asteroid.vertices[j + 1] - asteroid.y
+            asteroid.vertices[j] = asteroid.x + vx * math.cos(rotation) - vy * math.sin(rotation) + dx
+            asteroid.vertices[j + 1] = asteroid.y + vx * math.sin(rotation) + vy * math.cos(rotation) + dy
+        end
+
+        -- Collision check with player
+        local playerCollisionDetected = false
+        for j = 1, #asteroid.vertices, 2 do
+            local nextIndex = j % #asteroid.vertices + 2
+            local asteroidEdgeStart = {x = asteroid.vertices[j], y = asteroid.vertices[j + 1]}
+            local asteroidEdgeEnd = {x = asteroid.vertices[nextIndex], y = asteroid.vertices[nextIndex + 1]}
+
+            for k = 1, #_G.player.vertices, 2 do
+                local nextPlayerIndex = k % #_G.player.vertices + 2
+                local playerEdgeStart = {x = _G.player.vertices[k], y = _G.player.vertices[k + 1]}
+                local playerEdgeEnd = {x = _G.player.vertices[nextPlayerIndex], y = _G.player.vertices[nextPlayerIndex + 1]}
+
+                if utils.lineSegmentsIntersect(asteroidEdgeStart, asteroidEdgeEnd, playerEdgeStart, playerEdgeEnd) then
+                    playerCollisionDetected = true
+                    break
+                end
+            end
+
+            if playerCollisionDetected then
+                Health.decrease(1)
+                table.remove(_G.asteroids, i)
+                break
+            end
         end
         
-        -- Can we make this better?
+        -- Bullet collision check
         for _, bullet in ipairs(_G.player.bullets) do
             local bulletEnd = {x = bullet.x + bullet.dx * dt, y = bullet.y + bullet.dy * dt}
             for i, asteroid in ipairs(_G.asteroids) do
@@ -67,6 +92,8 @@ function Asteroids.update(dt)
         end
     end
 end
+
+
 
 function Asteroids.draw()
     for _, asteroid in ipairs(_G.asteroids) do
