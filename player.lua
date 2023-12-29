@@ -14,23 +14,39 @@ function Player.initialize()
 end
 
 function Player.update(dt)
+    local bulletsToRemove = {}
+
     player.attackTimer = player.attackTimer + dt
     if player.attackTimer >= 1 / _G.devSettings.attackSpeed.value then
         player.attackTimer = 0
         Player.fireBullet()
     end
 
-    for i = #player.bullets, 1, -1 do
-        local bullet = player.bullets[i]
+    for i, bullet in ipairs(_G.player.bullets) do
+
         bullet.x = bullet.x + bullet.dx * dt
         bullet.y = bullet.y + bullet.dy * dt
-        -- TODO: We need to make sure we kill asteroids behind others if first bullet kills enemy.
+        
+        local bulletEnd = {x = bullet.x + bullet.dx * dt, y = bullet.y + bullet.dy * dt}
         for j, asteroid in ipairs(_G.asteroids) do
-            if _G.utils.checkCollision(bullet.x, bullet.y, 5, asteroid.x, asteroid.y, 20) then
-                table.remove(_G.asteroids, j)
-                table.remove(player.bullets, i)
-                break
+            for k = 1, #asteroid.vertices, 2 do
+                local l = k + 2
+                if l > #asteroid.vertices then l = 1 end
+                local edgeStart = {x = asteroid.vertices[k], y = asteroid.vertices[k + 1]}
+                local edgeEnd = {x = asteroid.vertices[l], y = asteroid.vertices[l + 1]}
+                if utils.lineSegmentsIntersect({x = bullet.x, y = bullet.y}, bulletEnd, edgeStart, edgeEnd) then
+                    table.remove(_G.asteroids, j)
+                    bulletsToRemove[i] = true
+                    break
+                end
             end
+            if bulletsToRemove[i] then break end
+        end
+    end
+
+    for i = #_G.player.bullets, 1, -1 do
+        if bulletsToRemove[i] then
+            table.remove(_G.player.bullets, i)
         end
     end
 end

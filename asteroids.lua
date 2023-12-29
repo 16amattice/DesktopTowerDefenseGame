@@ -58,7 +58,7 @@ function Asteroids.update(dt)
                     if k > #asteroid.vertices then k = 1 end
                     local edgeStart = {x = asteroid.vertices[j], y = asteroid.vertices[j + 1]}
                     local edgeEnd = {x = asteroid.vertices[k], y = asteroid.vertices[k + 1]}
-                    if Asteroids.lineSegmentsIntersect({x = bullet.x, y = bullet.y}, bulletEnd, edgeStart, edgeEnd) then
+                    if utils.lineSegmentsIntersect({x = bullet.x, y = bullet.y}, bulletEnd, edgeStart, edgeEnd) then
                         table.remove(_G.asteroids, i)
                         break
                     end
@@ -66,15 +66,6 @@ function Asteroids.update(dt)
             end
         end
     end
-end
-
--- TODO: Refactor this into utils?
-function Asteroids.lineSegmentsIntersect(A, B, C, D)
-    local function ccw(A, B, C)
-        return (C.y - A.y) * (B.x - A.x) > (B.y - A.y) * (C.x - A.x)
-    end
-
-    return ccw(A, C, D) ~= ccw(B, C, D) and ccw(A, B, C) ~= ccw(A, B, D)
 end
 
 function Asteroids.draw()
